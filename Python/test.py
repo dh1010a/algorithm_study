@@ -1,2 +1,9 @@
-arr = [[1, 1, 1], [2, 2, 2], [0, 1, 0]]
-print(arr[0].count(1))
+import sys
+input = sys.stdin.readline
+n = int(input())
+arr = []
+for i in range(n):
+    arr.append(int(input()))
+arr.sort()
+for i in range(len(arr)):
+    print(arr[i])
