@@ -12,8 +12,7 @@ if n == 1:
     print(arr[0][0])
     sys.exit()
 else: 
-    dp[1][0], dp[1][1] = dp[0][0] + arr[1][0], dp[0][0] + arr[1][1]
-    for i in range(2, n):
+    for i in range(1, n):
         for j in range(i+1):
             if j == 0:
                 dp[i][j] = dp[i-1][j] + arr[i][j]
