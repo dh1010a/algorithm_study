@@ -1,17 +1,21 @@
-import sys
-
-k, n = map(int, input().split())
-lines = [int(sys.stdin.readline()) for _ in range(k)]
-left, right = 1, max(lines) + 1
-max_len = 0
-while(left <= right):
-    mid = (left + right) // 2
-    answer = sum(i//mid for i in lines)
-    if answer >= n:
-        left = mid + 1
-        max_len = mid
-    elif answer < n:
-        right = mid - 1
+def solution(name):
+    answer = 0
+    name = list(name)
+    min_move = len(name) - 1
+    for i in range(len(name)):
+        if ord(name[i]) - ord('A') < ord('Z') - ord(name[i]):
+            answer += ord(name[i]) - ord('A')
+        else:
+            answer += ord(name[i]) - ord('A')
+        next_d = i + 1
+        up_d = 0
+        while next_d < len(name) and name[next_d] == 'A':
+            next_d += 1
+        min_move = min(min_move, i + i + len - next_d)
+        min_move = min(min_move, (len-next_d) * 2 + i)
+    
+    answer += min_move
         
+    return answer
 
-print(max_len)
+solution('JAZ')
