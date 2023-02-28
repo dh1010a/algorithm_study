@@ -1,21 +1,17 @@
-def solution(name):
-    answer = 0
-    name = list(name)
-    min_move = len(name) - 1
-    for i in range(len(name)):
-        if ord(name[i]) - ord('A') < ord('Z') - ord(name[i]):
-            answer += ord(name[i]) - ord('A')
-        else:
-            answer += ord(name[i]) - ord('A')
-        next_d = i + 1
-        up_d = 0
-        while next_d < len(name) and name[next_d] == 'A':
-            next_d += 1
-        min_move = min(min_move, i + i + len - next_d)
-        min_move = min(min_move, (len-next_d) * 2 + i)
-    
-    answer += min_move
-        
-    return answer
+import sys
+from itertools import permutations
+input = sys.stdin.readline
 
-solution('JAZ')
+n = int(input())
+arr = [list(map(int, input().split())) for _ in range(n)]
+answer = sys.maxsize
+tmp = [i for i in range(n)]
+arr2 = list(permutations(tmp, n))
+    
+for i in arr2:
+    cnt = 0
+    for j in range(len(i)-1):
+        cnt += arr[i[j]][i[j+1]]
+    cnt += arr[i[-1]][i[0]]
+    answer = min(answer, cnt)
+print(answer)
