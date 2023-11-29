@@ -1,36 +1,84 @@
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 public class Main {
+	static int N, M;
+	static int[][] map;
+	static List<Node> house;
+	static List<Node> chicken;
+	static int answer;
+	static boolean[] remaining;
 
-    public int[][] map = {{ 0, 1, 0, 1, 0 },
-    { 0, 0, 0, 0, 0 },
-    { 0, 1, 0, 0, 1 },
-    { 1, 0, 1, 0, 0 },
-    { 0, 1, 1, 1, 0 }};
-    public boolean[][] visited;
-    public int[][] result;
-    public static void main(String[] args) throws IOException {
-        Recur(0, 0);
-    }
-    
-    public void Recur(int x){
-        visited[row][col] = true;
-        result.append([row, col]);
-        if (row == exit.row && col == exit.col){
-            stack.push(new Location(row, col));
-            return;
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+		N = Integer.parseInt(st.nextToken());
+		M = Integer.parseInt(st.nextToken());
+		house = new ArrayList<>();
+		chicken = new ArrayList<>();
+		map = new int[N][N];
+
+        for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine(), " ");
+			for (int j = 0; j < N; j++) {
+				map[i][j] = Integer.parseInt(st.nextToken());
+				if (map[i][j] == 1) {
+					house.add(new Node(i, j));
+				}
+				if (map[i][j] == 2) {
+					chicken.add(new Node(i, j));
+				}
+			}
         }
-        for (int i = 0; i < 4; i++){
-            int dr = row + dy[i];
-            int dc = col + dx[i];
-            if (is_moveAble(dr, dc)){
-                moveTo(dr, dc);
-            }
-        }
-        visited[row][col] = false;
-        stack.pop();
-        return;
+
+		answer = Integer.MAX_VALUE;
+		remaining = new boolean[chicken.size()];
+		dfs(0, 0);
+		bw.write(answer + "\n");
+
+        br.close();
+        bw.flush();
+        bw.close();
     }
 
+	public static void dfs(int start, int count){
+		if (count == M) {
+			int result = 0;
+
+			for (int i = 0; i < house.size(); i++) {
+				int tmp = Integer.MAX_VALUE;
+
+				for (int j = 0; j < chicken.size(); j++) {
+					if (remaining[j]) {
+						int distance = Math.abs(house.get(i).x - chicken.get(j).x) 
+						+ Math.abs(house.get(i).y - chicken.get(j).y);
+						tmp = Math.min(tmp, distance);
+					}
+				}
+				result += tmp;
+			}
+			answer = Math.min(answer, result);
+			return ;
+		}
+
+
+		for (int i = start; i < chicken.size(); i++) {
+			remaining[i] = true;
+			dfs(i + 1, count + 1);
+			remaining[i] = false;
+		}
+	}
+
+}
+
+class Node{
+	int x;
+	int y;
+
+	public Node(int x, int y) {
+		this.x = x;
+		this.y = y;
+	}
 }
