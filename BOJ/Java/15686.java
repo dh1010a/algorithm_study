@@ -20,6 +20,7 @@ public class Main {
 		chicken = new ArrayList<>();
 		map = new int[N][N];
 
+        // map과 치킨집, 집의 리스트를 저장
         for (int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine(), " ");
 			for (int j = 0; j < N; j++) {
@@ -43,6 +44,7 @@ public class Main {
         bw.close();
     }
 
+    // dfs를 이용하여 탐색 진행
 	public static void dfs(int start, int count){
 		if (count == M) {
 			int result = 0;
@@ -64,6 +66,7 @@ public class Main {
 		}
 
 
+        // 모든 치킨집에 대해 backtracking
 		for (int i = start; i < chicken.size(); i++) {
 			remaining[i] = true;
 			dfs(i + 1, count + 1);
