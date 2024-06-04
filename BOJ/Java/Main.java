@@ -2,11 +2,10 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-
-    static int[][] map;
-    static int answer;
     static int N, M;
-    static boolean[][] visited;
+    static long[] arr;
+    static long[] dp;
+    static long[] remain;
 
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -16,96 +15,46 @@ public class Main {
 		N = Integer.parseInt(st.nextToken());
 		M = Integer.parseInt(st.nextToken());
 
-        map = new int[N][M];
-        visited = new boolean[N][M];
-        answer = Integer.MIN_VALUE;
-        
+        arr = new long[N];
+        dp = new long[N];
+        remain = new long[N];
+
+        int result = 0;
+
+        st = new StringTokenizer(br.readLine(), " ");
         for (int i = 0; i < N; i++) {
-            st = new StringTokenizer(br.readLine(), "");
-            String str = st.nextToken();
-            for (int j = 0; j < M; j++) {
-                map[i][j] = str.charAt(j) - '0';
-            }
+            arr[i] = Integer.parseInt(st.nextToken());
+        }
+        dp[0] = arr[0];
+        for (int i = 1; i < N; i++) {
+            dp[i] = dp[i-1] + arr[i];
         }
 
-        dfs(0, 0, 0, 0);
-    
-        bw.write(answer + "\n");
+        // dp배열을 모두 M으로 나누어 준다
+        dp = Arrays.stream(dp).map(x -> x % M).toArray();
+
+        // 나누어진 배열에 0 이 있다면 0번쨰 원소부터 해당 자리까지의 합이 M으로 나누어 떨어짐을 의미한다
+        for (int i = 0; i < N; i++) {
+            if (dp[i] % M == 0) {
+                result++;
+            }
+            remain[(int) dp[i]]++;
+        }
+
+
+        for (int i = 0; i < N; i++) {
+            if (remain[i] > 1) {
+                result += remain[i] * (remain[i] - 1) / 2;
+            }
+        }
+        
+
+
+        bw.write(result + "\n");
 
         br.close();
         bw.flush();
         bw.close();
     }
-
-    public static void dfs(int x, int y, int num, int sum) {
-
-        if (x == N-1 && y == M-1) {
-            answer = Math.max(sum, answer);
-
-            if (answer == 0) {
-                answer = map[0][0];
-            }
-            return;
-        }
-
-        if (visited[x][y]) {
-            toNext(x, y, num, sum);
-        } else {
-            visited[x][y] = true;
-            num = num * 10 + map[x][y];
-            
-            //본인까지 자르기
-            toNext(x, y, 0, sum + num);
-
-            //아래 합쳐서 자르기
-            int i, tmp = num;
-            for (i = x + 1; i < N; i++) {
-                if (visited[i][y]) {
-                    break;
-                }
-                visited[i][y] = true;
-                tmp = tmp * 10 + map[i][y];
-                toNext(x, y, 0, sum + tmp);
-            }
-
-            for (int j = x + 1; j < i; j++) {
-                visited[j][y] = false;
-            }
-
-            //오른쪽 합쳐서 자르기
-            tmp = num;
-            for (i = y + 1; i < M; i++) {
-                if (visited[x][i]) {
-                    break;
-                }
-                visited[x][i] = true;
-                tmp = tmp * 10 + map[x][i];
-
-                toNext(x, y + i - y, 0, sum + tmp);
-            }
-            
-            for (int j = y + 1; j < i; j++) {
-                visited[x][j] = false;
-            }
-
-            visited[x][y] = false;
-        }
-
-    }
-
-    public static void toNext(int x, int y, int num, int sum) {
-        if (isRange(x, y+1)) {
-            dfs(x, y+1, num, sum);
-        } else if (isRange(x+1, 0)){
-            dfs(x+1, 0, num, sum);
-        } else {
-            dfs(N-1, M-1, num, sum);
-        }
-    }
-
-    public static boolean isRange(int x, int y) {
-        return x >= 0 && x < N && y >= 0 && y < M;
-    }
-
 
 }
