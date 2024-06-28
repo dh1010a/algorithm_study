@@ -2,38 +2,29 @@ import java.io.*;
 import java.util.*;
 
 class Main {
-    static int N;
-    static int[] arr, dp;
 
-    public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+    public static void main(String[] args) throws IOException {
+        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+        int N = Integer.parseInt(bf.readLine());
 
-        N = Integer.parseInt(br.readLine());
-        dp = new int[N][N];
-
-        if (n == 1) {
-            System.out.println("10");
-            return;
+        long[][] dp = new long[N+1][10];
+        for(int i = 0; i < 10; i++){
+            dp[1][i] = 1;
         }
 
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                dp[i][j] = 1;
+        for(int j = 2; j <= N ; j++){
+            for(int l = 0 ; l <= 9 ; l++){
+                for(int k = 0; k <= l ; k++){
+                    dp[j][l] += dp[j-1][k];
+                    dp[j][l] %= 10007;
+                }
             }
+            
         }
-
-        for (int i = 1; i < N; i++) {
-            for (int j = 0; j < 10; j++) {
-
-            }
+        int result = 0;
+        for(int m = 0; m < 10 ; m++){
+            result += dp[N][m];
         }
-
-
-        bw.write(result + "\n");
-
-        br.close();
-        bw.flush();
-        bw.close();
+        System.out.println(result%10007);
     }
 }
