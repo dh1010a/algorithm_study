@@ -15,6 +15,9 @@ class Solution {
         // 비교연산자
         @Override
         public int compareTo(SongDetail other) {
+            if (other.plays == this.plays) {
+                return Integer.compare(this.plays, other.plays);
+            }
             return Integer.compare(other.plays, this.plays);
         }
     }
