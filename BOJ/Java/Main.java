@@ -2,11 +2,10 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static List<Node> start = new ArrayList<>();
-    static List<Node> dest = new ArrayList<>();
-    static boolean[] visitedCustomer;
     static int[][] map;
-    static int N, M, Fuel;
+    static int N, M, answer, zeroCnt;
+    static List<Node> virus;
+    static Node[] nowSelect;
     static int[] dx = {0, 1, 0, -1};
     static int[] dy = {1, 0, -1, 0};
 
@@ -18,163 +17,128 @@ public class Main {
         StringTokenizer st = new StringTokenizer(br.readLine(), " ");
 		N = Integer.parseInt(st.nextToken());
 		M = Integer.parseInt(st.nextToken());
-		Fuel = Integer.parseInt(st.nextToken());
-        visitedCustomer = new boolean[M];
 
-        map = new int[N+1][N+1];
-        for(int i = 1; i <= N; i++) {
+        virus = new ArrayList<>();
+        nowSelect = new Node[M];
+
+
+        map = new int[N][N];
+        answer = Integer.MAX_VALUE;
+        for(int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine(), " ");
-            for(int j = 1; j <= N; j++) {
+            for(int j = 0; j < N; j++) {
                 map[i][j] = Integer.parseInt(st.nextToken());
+                if (map[i][j] == 1) map[i][j] = -1;
+                else if (map[i][j] == 2) {
+                    map[i][j] = -2;
+                    virus.add(new Node(i, j));
+                }
+                else zeroCnt++;
             }
         }
-        st = new StringTokenizer(br.readLine(), " ");
-        Node taxi = new Node(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()), 0);
 
-        // List<Node> start = new ArrayList<>(); 
-        // List<Node> dest = new ArrayList<>(); 
-        for (int i = 0; i < M; i++) {
-            st = new StringTokenizer(br.readLine(), " ");
-            start.add(new Node(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()),0));
-            dest.add(new Node(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()),0));
-        }
+        dfs(0, 0);
         
-        bw.write(solution(taxi) + "\n");
-
+        answer = answer == Integer.MAX_VALUE ? -1 : answer;
+        bw.write(answer + "\n");
         br.close();
         bw.flush();
         bw.close();
     }
 
-    static int solution(Node taxi) {
-        int cnt = 0;
-        while (cnt < M) {
-            int[] customer = getShortest(taxi);
-            if (customer[1] > Fuel || customer[0] < 0) {
-                return -1;
-            }
-            visitedCustomer[customer[0]] = true;
-            Fuel -= customer[1];
-            taxi.x = start.get(customer[0]).x;
-            taxi.y = start.get(customer[0]).y;
-            taxi.dist = 0;
-
-            int result = moveToDest(taxi, customer[0]);
-            if (result < 0) {
-                return -1;
-            }
-            if (cnt < M) {
-                Fuel += result;
-            }
-            taxi.x = dest.get(customer[0]).x;
-            taxi.y = dest.get(customer[0]).y;
-            taxi.dist = 0;
-
-            cnt++;
+    static void dfs(int start, int cnt) {
+        if (cnt == M) {
+            answer = Math.min(afterVirus(), answer);
+            return;
         }
-        return Fuel;
+
+        for(int i = start; i < virus.size(); i++) {
+            nowSelect[cnt] = virus.get(i);
+            dfs(i + 1, cnt + 1);
+        }
 
     }
 
-    static int[] getShortest(Node taxi) {
-        Deque<Node> q = new ArrayDeque<>();
-        boolean[][] visited = new boolean[N+1][N+1];
-        q.addFirst(taxi);
-        visited[taxi.x][taxi.y] = true;
-
-        List<Integer> idxList = new ArrayList<>();
-        int nowMin = 10000;
-        while (!q.isEmpty()) {
-            Node now = q.pollLast();
-            int idx = getCustomer(now);
-            if (now.dist > nowMin) {
-                break;
-            }
-            if (idx >= 0) {
-                idxList.add(idx);
-                nowMin = now.dist;
-            }
-            for (int i = 0; i < 4; i++) {
-                int nx = now.x + dx[i];
-                int ny = now.y + dy[i];
-                if (isRange(nx, ny) && !visited[nx][ny]) {
-                    visited[nx][ny] = true;
-                    q.addFirst(new Node(nx, ny, now.dist + 1));
-                }
+    public static int[][] copyArr() {
+        int[][] tmp = new int[N][N];
+        for (int i = 0; i < N; i++) {
+            for (int j =0 ; j < N; j++) {
+                tmp[i][j] = map[i][j];
             }
         }
-        Node tmp = new Node(N * N, N * N, 100);
-        int minIdx = -1;
-        for (int i = 0; i < idxList.size(); i++) {
-            Node now = start.get(idxList.get(i));
-            if (tmp.x >= now.x) {
-                if (tmp.x == now.x) {
-                    if (tmp.y > now.y)  {
-                        minIdx = idxList.get(i);
-                        tmp = now;
-                    }
-                } else {
-                    tmp = now;
-                    minIdx = idxList.get(i);
-                }
+		return tmp;
+    }
+
+    static int afterVirus() {
+        Deque<Node> q = new ArrayDeque<>();
+        int[][] tmp = copyArr();
+        boolean[][] visited = new boolean[N][N];
+
+        for (Node x : nowSelect) {
+            if (tmp[x.x][x.y] == -2) {
+                q.addFirst(x);
+                visited[x.x][x.y] = true;
+                tmp[x.x][x.y] = 0;
             }
         }
         
-        return new int[]{minIdx, nowMin};
-    }
-
-    static int moveToDest(Node taxi, int idx) {
-        Deque<Node> q = new ArrayDeque<>();
-        boolean[][] visited = new boolean[N+1][N+1];
-        q.addFirst(taxi);
-        visited[taxi.x][taxi.y] = true;
-        Node destination = dest.get(idx);
-
+        
+        int nowCnt = 0;
         while (!q.isEmpty()) {
             Node now = q.pollLast();
-            if (now.x == destination.x && now.y == destination.y) {
-                if (now.dist > Fuel) {
-                    return -1;
-                }
-                return now.dist;
-            }
+
             for (int i = 0; i < 4; i++) {
                 int nx = now.x + dx[i];
                 int ny = now.y + dy[i];
-                if (isRange(nx, ny) && !visited[nx][ny]) {
+                if (isRange(nx, ny) && tmp[nx][ny] != -1 && !visited[nx][ny]) {
+                    if (map[nx][ny] == 0) {
+                        nowCnt++;
+                    }
+                    q.addFirst(new Node(nx, ny));
                     visited[nx][ny] = true;
-                    q.addFirst(new Node(nx, ny, now.dist + 1));
+                    tmp[nx][ny] = tmp[now.x][now.y] + 1;
                 }
             }
+
         }
-        return -1;
+
+        if (zeroCnt != nowCnt) {
+            return Integer.MAX_VALUE;
+        }
+        return check(tmp);
     }
 
-    static int getCustomer(Node now) {
-        for (int i = 0; i < M; i++) {
-            if (!visitedCustomer[i]) {
-                Node tmp = start.get(i);
-                if (tmp.x == now.x && tmp.y == now.y) {
-                    return i;
-                }
+    public static int check(int[][] tmp) {
+        // System.out.println("============");
+        int now_max = 0;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (map[i][j] == -2) tmp[i][j] = 0;
+                now_max = Math.max(now_max, tmp[i][j]);
             }
         }
-        return -1;
+
+        // for (int i = 0; i < N; i++) {
+        //     for (int j = 0; j < N; j++) {
+        //         System.out.print(tmp[i][j] + " ");
+        //     }
+        //     System.out.println();
+        // }
+        
+        return now_max;
     }
 
     static boolean isRange(int x, int y) {
-        return x > 0 && x <= N && y > 0 && y <= N && map[x][y] == 0;
+        return x >= 0 && x < N && y >= 0 && y < N;
     }
 
-    static class Node {
+     static class Node {
         int x;
         int y;
-        int dist;
-        
-        public Node(int x, int y, int dist) {
+
+        public Node(int x, int y) {
             this.x = x;
             this.y = y;
-            this.dist = dist;
         }
     }
 
