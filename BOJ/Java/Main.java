@@ -2,12 +2,13 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static int[][] map;
-    static int N, M, answer, zeroCnt;
-    static List<Node> virus;
-    static Node[] nowSelect;
+	static int N, K;
+	static int[][] world;
     static int[] dx = {0, 1, 0, -1};
     static int[] dy = {1, 0, -1, 0};
+    static Deque<int[]> snake = new ArrayDeque<>();
+    static Map<Integer, String> info = new HashMap<>();
+    
 
 
     public static void main(String[] args) throws Exception {
@@ -16,130 +17,83 @@ public class Main {
 
         StringTokenizer st = new StringTokenizer(br.readLine(), " ");
 		N = Integer.parseInt(st.nextToken());
-		M = Integer.parseInt(st.nextToken());
+        K = Integer.parseInt(br.readLine());
+        world = new int[N+1][N+1];
 
-        virus = new ArrayList<>();
-        nowSelect = new Node[M];
-
-
-        map = new int[N][N];
-        answer = Integer.MAX_VALUE;
-        for(int i = 0; i < N; i++) {
+        for (int i = 0; i < K; i++) {
             st = new StringTokenizer(br.readLine(), " ");
-            for(int j = 0; j < N; j++) {
-                map[i][j] = Integer.parseInt(st.nextToken());
-                if (map[i][j] == 1) map[i][j] = -1;
-                else if (map[i][j] == 2) {
-                    map[i][j] = -2;
-                    virus.add(new Node(i, j));
-                }
-                else zeroCnt++;
-            }
+            int r = Integer.parseInt(st.nextToken());
+            int c = Integer.parseInt(st.nextToken());
+            world[r][c] = 1;
+        }
+        snake.add(new int[]{1, 1});
+
+        int L = Integer.parseInt(br.readLine());
+
+        for (int i = 0; i < L; i++) {
+            st = new StringTokenizer(br.readLine(), " ");
+            int x = Integer.parseInt(st.nextToken());
+            String d = st.nextToken();
+
+            info.put(x, d);
         }
 
-        dfs(0, 0);
-        
-        answer = answer == Integer.MAX_VALUE ? -1 : answer;
-        bw.write(answer + "\n");
+        int time = 0;
+        int now_d = 0;
+        while(true) {
+            time++;
+
+            int[] now = snake.peek();
+            int[] nnow = new int[]{now[0] + dx[now_d], now[1] + dy[now_d]};
+
+
+            if (!isRange(nnow) || isDead(nnow)) {
+                break;
+            }
+            snake.addFirst(nnow);
+            
+            if (world[nnow[0]][nnow[1]] == 1) {
+                world[nnow[0]][nnow[1]] = 0;
+            } else {
+                int[] tmp = snake.pollLast();
+            }
+
+            if (info.containsKey(time)) {
+                now_d = changeD(now_d, info.get(time));
+            }
+            
+        }
+
+        bw.write(time + "\n");
+
+
         br.close();
         bw.flush();
         bw.close();
     }
 
-    static void dfs(int start, int cnt) {
-        if (cnt == M) {
-            answer = Math.min(afterVirus(), answer);
-            return;
-        }
-
-        for(int i = start; i < virus.size(); i++) {
-            nowSelect[cnt] = virus.get(i);
-            dfs(i + 1, cnt + 1);
-        }
-
-    }
-
-    public static int[][] copyArr() {
-        int[][] tmp = new int[N][N];
-        for (int i = 0; i < N; i++) {
-            for (int j =0 ; j < N; j++) {
-                tmp[i][j] = map[i][j];
+    public static boolean isDead(int[] now) {
+        for (int[] x : snake) {
+            if (x[0] == now[0] && x[1] == now[1]) {
+                return true;
             }
         }
-		return tmp;
+        return false;
     }
 
-    static int afterVirus() {
-        Deque<Node> q = new ArrayDeque<>();
-        int[][] tmp = copyArr();
-        boolean[][] visited = new boolean[N][N];
-
-        for (Node x : nowSelect) {
-            if (tmp[x.x][x.y] == -2) {
-                q.addFirst(x);
-                visited[x.x][x.y] = true;
-                tmp[x.x][x.y] = 0;
-            }
-        }
-        
-        
-        int nowCnt = 0;
-        while (!q.isEmpty()) {
-            Node now = q.pollLast();
-
-            for (int i = 0; i < 4; i++) {
-                int nx = now.x + dx[i];
-                int ny = now.y + dy[i];
-                if (isRange(nx, ny) && tmp[nx][ny] != -1 && !visited[nx][ny]) {
-                    if (map[nx][ny] == 0) {
-                        nowCnt++;
-                    }
-                    q.addFirst(new Node(nx, ny));
-                    visited[nx][ny] = true;
-                    tmp[nx][ny] = tmp[now.x][now.y] + 1;
-                }
-            }
-
-        }
-
-        if (zeroCnt != nowCnt) {
-            return Integer.MAX_VALUE;
-        }
-        return check(tmp);
+    public static boolean isRange(int[] now) {
+        return now[0] > 0 && now[0] <= N && now[1] > 0 && now[1] <= N;
     }
 
-    public static int check(int[][] tmp) {
-        // System.out.println("============");
-        int now_max = 0;
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                if (map[i][j] == -2) tmp[i][j] = 0;
-                now_max = Math.max(now_max, tmp[i][j]);
-            }
-        }
-
-        // for (int i = 0; i < N; i++) {
-        //     for (int j = 0; j < N; j++) {
-        //         System.out.print(tmp[i][j] + " ");
-        //     }
-        //     System.out.println();
-        // }
-        
-        return now_max;
-    }
-
-    static boolean isRange(int x, int y) {
-        return x >= 0 && x < N && y >= 0 && y < N;
-    }
-
-     static class Node {
-        int x;
-        int y;
-
-        public Node(int x, int y) {
-            this.x = x;
-            this.y = y;
+    public static int changeD(int d, String x) {
+        if (x.equals("L")) {
+            return (4 + (d - 1)) % 4;
+        } else {
+            return (d + 1) % 4;
         }
     }
 
 }
+
+
+
