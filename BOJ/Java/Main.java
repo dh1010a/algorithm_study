@@ -1,99 +1,63 @@
-import java.io.*;
 import java.util.*;
+import java.io.*;
 
-public class Main {
-	static int N, K;
-	static int[][] world;
-    static int[] dx = {0, 1, 0, -1};
-    static int[] dy = {1, 0, -1, 0};
-    static Deque<int[]> snake = new ArrayDeque<>();
-    static Map<Integer, String> info = new HashMap<>();
-    
+class Main {
+    static boolean[][] visited;
+    static int N, K, max;
 
-
-    public static void main(String[] args) throws Exception {
+	public static void main(String args[]) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
         StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-		N = Integer.parseInt(st.nextToken());
-        K = Integer.parseInt(br.readLine());
-        world = new int[N+1][N+1];
+        N = Integer.parseInt(st.nextToken());
+        K = Integer.parseInt(st.nextToken());
+        max = -1;
+        visited = new boolean[1000001][K + 1];
 
-        for (int i = 0; i < K; i++) {
-            st = new StringTokenizer(br.readLine(), " ");
-            int r = Integer.parseInt(st.nextToken());
-            int c = Integer.parseInt(st.nextToken());
-            world[r][c] = 1;
-        }
-        snake.add(new int[]{1, 1});
-
-        int L = Integer.parseInt(br.readLine());
-
-        for (int i = 0; i < L; i++) {
-            st = new StringTokenizer(br.readLine(), " ");
-            int x = Integer.parseInt(st.nextToken());
-            String d = st.nextToken();
-
-            info.put(x, d);
-        }
-
-        int time = 0;
-        int now_d = 0;
-        while(true) {
-            time++;
-
-            int[] now = snake.peek();
-            int[] nnow = new int[]{now[0] + dx[now_d], now[1] + dy[now_d]};
-
-
-            if (!isRange(nnow) || isDead(nnow)) {
-                break;
-            }
-            snake.addFirst(nnow);
-            
-            if (world[nnow[0]][nnow[1]] == 1) {
-                world[nnow[0]][nnow[1]] = 0;
-            } else {
-                int[] tmp = snake.pollLast();
-            }
-
-            if (info.containsKey(time)) {
-                now_d = changeD(now_d, info.get(time));
-            }
-            
-        }
-
-        bw.write(time + "\n");
-
-
-        br.close();
+        dfs(N + "", 0);
+        
+        bw.write(max + "\n");
         bw.flush();
         bw.close();
-    }
+        br.close();
+	}
 
-    public static boolean isDead(int[] now) {
-        for (int[] x : snake) {
-            if (x[0] == now[0] && x[1] == now[1]) {
-                return true;
+    public static void dfs(String numStr, int depth) {
+        int num = Integer.parseInt(numStr);
+        if (depth == K) {
+            max = Math.max(num, max);
+            return;
+        }
+
+        for (int i = 0; i < numStr.length() - 1; i++) {
+            for (int j = i + 1; j < numStr.length(); j++) {
+                int next = swap(numStr, i, j);
+                if (next != -1 && !visited[next][depth]) {
+                    visited[next][depth] = true;
+                    dfs(next + "", depth + 1);
+                }
             }
         }
-        return false;
+        
     }
 
-    public static boolean isRange(int[] now) {
-        return now[0] > 0 && now[0] <= N && now[1] > 0 && now[1] <= N;
-    }
 
-    public static int changeD(int d, String x) {
-        if (x.equals("L")) {
-            return (4 + (d - 1)) % 4;
-        } else {
-            return (d + 1) % 4;
+
+    public static int swap(String num, int i, int j) {
+        char[] num_arr = num.toCharArray();
+
+        // 바꾸면 앞자리가 0이 되는 경우 -1 리턴
+        if (i == 0 && num_arr[j] == '0') {
+            return -1;
         }
+
+        char tmp = num_arr[i];
+        num_arr[i] = num_arr[j];
+        num_arr[j] = tmp;
+
+        return Integer.parseInt(new String(num_arr));
     }
 
+   
 }
-
-
-
