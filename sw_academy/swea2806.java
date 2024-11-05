@@ -1,7 +1,6 @@
 import java.util.*;
-import java.io.*;
 
-class Solution
+class swea2806
 {
     static int[] board;
     static int answer;

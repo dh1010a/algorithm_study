@@ -2,34 +2,84 @@ import java.util.*;
 import java.io.*;
 
 class Main{
-	public static void main(String args[]) throws Exception
-	{
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-		int T;
-		T=10;
+    public static void main(String args[]) throws Exception {
+        Scanner sc = new Scanner(System.in);
+        int T;
+        T=1;
 
-		for(int tc = 1; tc <= T; tc++)
-		{
-            int count = Integer.parseInt(br.readLine());
-            StringTokenizer st = new StringTokenizer(br.readLine(), "");
+        for(int tc = 1; tc <= T; tc++) {
+            int N = sc.nextInt();
+            int result = 0;
 
-            int[] arr = new int[100];
-            for (int i = 0; i < 100; i++) {
-                arr[i] = Integer.parseInt(st.nextToken());
+            char[][] arr = new char[8][];
+            for (int i = 0; i < 8; i++) {
+                arr[i] = sc.next().toCharArray();
             }
 
-            Arrays.sort(arr);
-            for (int i = 0; i < count; i++) {
-                arr[0]++;
-                arr[arr.length - 1]--;
-                Arrays.sort(arr);
+            // 세로 회문 먼저
+            for (int y = 0; y < 8; y++) {
+                int start = 0;
+                int end = start + N - 1;
+                StringBuilder str = new StringBuilder();
+                for (int i = start; i <= end; i++) {
+                    str.append(arr[i][y]);
+                }
+                while (true) {
+                    if (isReverseable(N, str.toString().toCharArray())) {
+                        result++;
+                    }
+                    start++;
+                    end++;
+                    if (end >= 8) {
+                        break;
+                    }
+                    str.deleteCharAt(0);
+                    str.append(arr[end][y]);
+                }
             }
-            int result = arr[arr.length - 1] - arr[0];
-            bw.write("#" + tc + " " + result + "\n");
-		}
-        bw.flush();
-        bw.close();
-        br.close();
-	}
+
+            //가로 회문
+            for (int x = 0; x < 8; x++) {
+                int start = 0;
+                int end = start + N - 1;
+                StringBuilder str = new StringBuilder();
+                for (int i = start; i <= end; i++) {
+                    str.append(arr[x][i]);
+                }
+                while (true) {
+                    if (isReverseable(N, str.toString().toCharArray())) {
+                        result++;
+                    }
+                    start++;
+                    end++;
+                    if (end >= 8) {
+                        break;
+                    }
+                    str.deleteCharAt(0);
+                    str.append(arr[x][end]);
+                }
+            }
+
+            System.out.println("#" + tc + " " + result);
+        }
+    }
+
+
+    public static boolean isReverseable(int N, char[] arr) {
+        int mid = N / 2;
+        if (N % 2 == 0) {
+            for (int i = mid; i < N; i++) {
+                if (arr[N - i - 1] != arr[i]) {
+                    return false;
+                }
+            }
+        } else {
+            for (int i = mid + 1; i < N; i++) {
+                if (arr[N - i - 1] != arr[i]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 }
