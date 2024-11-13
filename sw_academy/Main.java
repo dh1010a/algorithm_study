@@ -2,39 +2,65 @@ import java.util.*;
 import java.io.*;
 
 class Main{
+
     public static void main(String args[]) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
         int T;
-        T=1;
+        T = Integer.parseInt(br.readLine());
+
+        int[] dx = {1, 0, -1, 0};
+        int[] dy = {0, 1, 0, -1};
 
         for(int tc = 1; tc <= T; tc++) {
             int N = Integer.parseInt(br.readLine());
-            int[][] table = new int[N][N];
+            int[][] map = new int[N][N];
+            int[][] dp = new int[N][N];
 
             for (int i = 0; i < N; i++) {
-                StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+                String str = br.readLine();
                 for (int j = 0; j < N; j++) {
-                    table[i][j] = Integer.parseInt(st.nextToken());
+                    map[i][j] = str.charAt(j) - '0';
+                    dp[i][j] = Integer.MAX_VALUE;
                 }
             }
+            Deque<Node> dq = new ArrayDeque<>();
 
-            int result = 0;
-            for (int y = 0; y < N; y++) {
-                int last = 0;
-                for (int x = 0; x < N; x++) {
-                    if (table[x][y] == 1) {
-                        last = 1;
-                    } else if (table[x][y] == 2) {
+            dq.add(new Node(0, 0, 0));
+            while (!dq.isEmpty()) {
+                Node now = dq.remove();
 
-                        if (last == 1) {
-                            result++;
+                for (int i = 0; i < 4; i++) {
+                    int nx = now.x + dx[i];
+                    int ny = now.y + dy[i];
+
+                    if (isRange(N, nx, ny)) {
+                        if (now.sum + map[nx][ny] < dp[nx][ny]) {
+                            dq.add(new Node(nx, ny, now.sum + map[nx][ny]));
+                            dp[nx][ny] = now.sum + map[nx][ny];
                         }
-                        last = 2;
                     }
+
                 }
             }
+            System.out.println("#" + tc + " " + dp[N-1][N-1]);
 
-            System.out.println("#" + tc + " " + result);
+        }
+    }
+
+    public static boolean isRange(int N, int x, int y) {
+        return x >= 0 && x < N && y >= 0 && y < N;
+    }
+
+    public static class Node{
+        int x;
+        int y;
+        int sum;
+
+        public Node(int x, int y, int sum) {
+            this.x = x;
+            this.y = y;
+            this.sum = sum;
         }
     }
 }
