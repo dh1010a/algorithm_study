@@ -3,12 +3,9 @@ import java.io.*;
 
 class Solution {
 
-    static int[] dx = {0, 1, 0, -1};
-    static int[] dy = {1, 0, -1, 0};
-
-    static boolean[][][][] visited;
-    static char[][] command;
-    static int result, R, C;
+    static char[][] map;
+    static int N, result;
+    static boolean[][] visited;
 
     public static void main(String args[]) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -16,92 +13,93 @@ class Solution {
         T = Integer.parseInt(br.readLine());
 
         for(int tc = 1; tc <= T; tc++) {
-            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-            R = Integer.parseInt(st.nextToken());
-            C = Integer.parseInt(st.nextToken());
+            N = Integer.parseInt(br.readLine());
+            result = 0;
 
-            visited = new boolean[R][C][4][16];
-            command = new char[R][C];
-            result = -1;
+            map = new char[N][N];
+            visited = new boolean[N][N];
 
-            for (int i = 0; i < R; i++) {
+            for (int i = 0; i < N; i++) {
                 String str = br.readLine();
-                for (int j = 0; j < C; j++) {
-                    command[i][j] = str.charAt(j);
-                    if (command[i][j] == '@') {
-                        result = 0;
+                for (int j = 0; j < N; j++) {
+                    map[i][j] = str.charAt(j);
+                }
+            }
+
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    if (map[i][j] != '*' && !visited[i][j] && countBomb(i, j) == 0 ) {
+                        result++;
+                        bfs(i, j);
                     }
                 }
             }
 
-            if (result == 0)
-                dfs(0, 0, 0, 0);
-
-            if (result == 1) {
-                System.out.println("#" + tc + " " + "YES");
-            } else {
-                System.out.println("#" + tc + " " + "NO");
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    if (map[i][j] == '.') {
+                        result++;
+                        map[i][j] = (char)(countBomb(i, j) + '0');
+                    }
+                }
             }
+
+
+            System.out.println("#" + tc + " " + result);
         }
     }
 
-    static void dfs(int x, int y, int dir, int memory) {
-        if (result != 0) {
-            return;
-        }
-        if (visited[x][y][dir][memory]) {
-            return;
-        }
+    public static void bfs(int x, int y) {
+        Deque<int[]> dq = new ArrayDeque<>();
+        visited[x][y] = true;
 
-        visited[x][y][dir][memory] = true;
-        char oper = command[x][y];
+        dq.add(new int[]{x, y});
 
-        if (oper >= '0' && oper <= '9') {
-            memory = oper - '0';
-        } else if (oper == '<') {
-            dir = 2;
-        } else if (oper == '>') {
-            dir = 0;
-        } else if (oper == 'v') {
-            dir = 1;
-        } else if (oper == '^') {
-            dir = 3;
-        } else if(oper == '_') {
-            dir = (memory == 0) ? 0 : 2;
-        } else if(oper == '|') {
-            dir = (memory == 0) ? 1 : 3;
-        }
-        else if (oper == '?') {
-            for (int i = 0; i < 4; i++) {
-                int nextDir = (dir + i) % 4;
-                int nx = x + dx[nextDir];
-                int ny = y + dy[nextDir];
-
-                if (nx < 0) nx = R - 1;
-                else if (nx >= R) nx =  0;
-                else if (ny < 0) ny = C - 1;
-                else if (ny >= C) ny =  0;
-
-                dfs(nx, ny, nextDir, memory);
+        while (!dq.isEmpty()) {
+            int[] now = dq.remove();
+            int bombCnt = countBomb(now[0], now[1]);
+            map[now[0]][now[1]] = (char)('0' + bombCnt);
+            if (bombCnt > 0) {
+                continue;
             }
-            return ;
-        } else if (oper == '@') {
-            result = 1;
-        } else if(oper == '+') {
-           memory = (memory == 15) ? 0 : memory + 1;
-        } else if(oper == '-') {
-            memory = (memory == 0) ? 15 :memory - 1;
+            for (int i = -1; i < 2; i++) {
+                for (int j = -1; j < 2; j++) {
+                    int nx = now[0] + i;
+                    int ny = now[1] + j;
+                    if (nx == x && ny == y) {
+                        continue;
+                    }
+                    if (isRange(nx, ny) && !visited[nx][ny] && map[nx][ny] != '*') {
+                        visited[nx][ny] = true;
+                        dq.add(new int[]{nx, ny});
+                    }
+                }
+            }
         }
 
-        int nx = x + dx[dir];
-        int ny = y + dy[dir];
+    }
 
-        if (nx < 0) nx = R - 1;
-        else if (nx >= R) nx =  0;
-        else if (ny < 0) ny = C - 1;
-        else if (ny >= C) ny =  0;
+    public static int countBomb(int x, int y) {
+        int cnt = 0;
+        for (int i = -1; i < 2; i++) {
+            for (int j = -1; j < 2; j++) {
+                int nx = x + i;
+                int ny = y + j;
+                if (nx == x && ny == y) {
+                    continue;
+                }
+                if (isRange(nx, ny) && map[nx][ny] == '*') {
+                    cnt++;
+                }
+            }
+        }
+        return cnt;
+    }
 
-        dfs(nx, ny, dir, memory);
+
+
+    public static boolean isRange(int x, int y) {
+        return 0 <= x && x < N && 0 <= y && y < N;
     }
 
 
