@@ -3,9 +3,10 @@ import java.io.*;
 
 class Solution {
 
-    static char[][] map;
-    static int N, result;
-    static boolean[][] visited;
+    static int[][] map;
+    static int N, maxRoom, maxMove;
+    static int[] dx = {0, 1, 0, -1};
+    static int[] dy = {1, 0, -1, 0};
 
     public static void main(String args[]) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -14,89 +15,64 @@ class Solution {
 
         for(int tc = 1; tc <= T; tc++) {
             N = Integer.parseInt(br.readLine());
-            result = 0;
+            maxRoom = Integer.MAX_VALUE;
+            maxMove = 0;
 
-            map = new char[N][N];
-            visited = new boolean[N][N];
+            map = new int[N][N];
 
             for (int i = 0; i < N; i++) {
-                String str = br.readLine();
+                StringTokenizer st = new StringTokenizer(br.readLine(), " ");
                 for (int j = 0; j < N; j++) {
-                    map[i][j] = str.charAt(j);
+                    map[i][j] = Integer.parseInt(st.nextToken());
                 }
             }
 
+            Deque<Node> dq = new ArrayDeque<>();
             for (int i = 0; i < N; i++) {
                 for (int j = 0; j < N; j++) {
-                    if (map[i][j] != '*' && !visited[i][j] && countBomb(i, j) == 0 ) {
-                        result++;
-                        bfs(i, j);
+                    dq.add(new Node(i, j, map[i][j], 1));
+                    while (!dq.isEmpty()) {
+                        Node now = dq.remove();
+                        if (maxMove < now.cnt) {
+                            maxMove = now.cnt;
+                            maxRoom = now.startRoom;
+                        } else if (maxMove == now.cnt && maxRoom > now.startRoom) {
+                            maxRoom = now.startRoom;
+                        }
+
+                        for (int k = 0; k < 4; k++) {
+                            int nx = now.x + dx[k];
+                            int ny = now.y + dy[k];
+
+                            if (isRange(nx, ny) && map[nx][ny] == map[now.x][now.y] + 1) {
+                                dq.add(new Node(nx, ny, now.startRoom, now.cnt + 1));
+                            }
+                        }
                     }
                 }
             }
 
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < N; j++) {
-                    if (map[i][j] == '.') {
-                        result++;
-                        map[i][j] = (char)(countBomb(i, j) + '0');
-                    }
-                }
-            }
-
-
-            System.out.println("#" + tc + " " + result);
+            System.out.println("#" + tc + " " + maxRoom  + " " + maxMove);
         }
     }
 
-    public static void bfs(int x, int y) {
-        Deque<int[]> dq = new ArrayDeque<>();
-        visited[x][y] = true;
+    public static class Node{
+        int x;
+        int y;
+        int startRoom;
+        int cnt;
 
-        dq.add(new int[]{x, y});
-
-        while (!dq.isEmpty()) {
-            int[] now = dq.remove();
-            int bombCnt = countBomb(now[0], now[1]);
-            map[now[0]][now[1]] = (char)('0' + bombCnt);
-            if (bombCnt > 0) {
-                continue;
-            }
-            for (int i = -1; i < 2; i++) {
-                for (int j = -1; j < 2; j++) {
-                    int nx = now[0] + i;
-                    int ny = now[1] + j;
-                    if (nx == x && ny == y) {
-                        continue;
-                    }
-                    if (isRange(nx, ny) && !visited[nx][ny] && map[nx][ny] != '*') {
-                        visited[nx][ny] = true;
-                        dq.add(new int[]{nx, ny});
-                    }
-                }
-            }
+        public Node(int x, int y, int startRoom, int cnt) {
+            this.x = x;
+            this.y = y;
+            this.startRoom = startRoom;
+            this.cnt = cnt;
         }
-
     }
 
-    public static int countBomb(int x, int y) {
-        int cnt = 0;
-        for (int i = -1; i < 2; i++) {
-            for (int j = -1; j < 2; j++) {
-                int nx = x + i;
-                int ny = y + j;
-                if (nx == x && ny == y) {
-                    continue;
-                }
-                if (isRange(nx, ny) && map[nx][ny] == '*') {
-                    cnt++;
-                }
-            }
-        }
-        return cnt;
-    }
-
-
+//    public static int bfs(int x, ) {
+//
+//    }
 
     public static boolean isRange(int x, int y) {
         return 0 <= x && x < N && 0 <= y && y < N;
