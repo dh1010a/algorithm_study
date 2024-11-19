@@ -1,18 +1,20 @@
 import java.util.*;
-class Solution {
-    public boolean solution(String[] phone_book) {
-        Map<String, Integer> map = new HashMap<>();
 
-        for (String x : phone_book) {
+class pgs42577 {
+    public boolean solution(String[] phone_book) {
+        HashMap<String, Integer> map = new HashMap<>();
+        for (String x: phone_book) {
             map.put(x, 1);
         }
-        for (int i = 0; i < phone_book.length; i++) {
-            for (int j = 1; j < phone_book[i].length(); j++) {
-                if (map.containsKey(phone_book[i].substring(0, j))) {
+
+        for (String x: phone_book) {
+            for (int i = 1; i < x.length(); i++) {
+                if (map.containsKey(x.substring(0, i))) {
                     return false;
                 }
             }
         }
+
         return true;
     }
 }
