@@ -1,5 +1,5 @@
 import java.util.*;
-class Solution {
+class pgs42584 {
     public int[] solution(int[] prices) {
         int[] answer = new int[prices.length];
         
@@ -17,22 +17,24 @@ class Solution {
         return answer;
     }
 
-    //stack 사용 풀이
+    //Deque 사용 풀이
     public int[] solution(int[] prices) {
         int[] answer = new int[prices.length];
-        Stack<Integer> stack = new Stack<>();
-        
+        Deque<Integer> dq = new ArrayDeque<>();
+
         for (int i = 0; i < prices.length; i++) {
-            while (!stack.isEmpty() && prices[i] < prices[stack.peek()]) {
-                answer[stack.peek()] = i - stack.peek();
-                stack.pop();
+            while(!dq.isEmpty() && prices[i] < prices[dq.peekLast()]) {
+                answer[dq.peekLast()] = i - dq.peekLast();
+                dq.removeLast();
             }
-            stack.push(i);
+            dq.add(i);
         }
-        while (!stack.isEmpty()) {
-            answer[stack.peek()] = prices.length - stack.peek() - 1;
-            stack.pop();
+        while (!dq.isEmpty()) {
+            answer[dq.peekLast()] = prices.length - dq.peekLast() - 1;
+            dq.removeLast();
         }
+
+
         return answer;
     }
 }

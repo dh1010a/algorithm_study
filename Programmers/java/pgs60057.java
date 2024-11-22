@@ -1,11 +1,11 @@
 import java.util.*;
-class Solution {
+class pgs60057 {
     public int solution(String s) {
         List<Integer> answer = new ArrayList<>();
         for (int i = 1; i <= s.length(); i++) {
             Queue<String> q = new LinkedList<>();
             int j = 0;
-            while (j + i <= s.length() && i <= s.length() - 1) {
+            while (j + i <= s.length()) {
                 q.add(s.substring(j, j + i));
                 j += i;
             }
