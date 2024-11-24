@@ -1,31 +1,30 @@
 import java.util.*;
-class Solution {
-    int[] dx = {0, 1, 0, -1};
-    int[] dy = {1, 0, -1, 0};
+
+class pgs43162 {
     boolean[] visited;
-    int answer;
-    
-    
+    int answer = 0;
+
     public int solution(int n, int[][] computers) {
-        answer = 0;
-        visited = new boolean[n];
-        for (int i = 0; i < n; i++) {
+        visited = new boolean[computers.length];
+
+        for (int i = 0; i < computers.length; i++) {
             if (!visited[i]) {
-                dfs(computers, i, n);
+                visited[i] = true;
                 answer++;
+                dfs(computers, i);
             }
         }
-        
+
         return answer;
     }
-    
-    public void dfs(int[][] computers, int x, int n) {
-        visited[x] = true;
-        for (int i = 0; i < n; i++) {
-            if (!visited[i] && computers[x][i] == 1) {
-                dfs(computers, i, n);
+
+    public void dfs(int[][] computers, int now) {
+        for (int i = 0; i < computers.length; i++) {
+            if (!visited[i] && i != now && computers[now][i] == 1) {
+                visited[i] = true;
+                dfs(computers, i);
             }
         }
     }
-    
+
 }

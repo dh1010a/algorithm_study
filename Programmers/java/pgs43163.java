@@ -1,38 +1,33 @@
-class Solution {
-    int answer = Integer.MAX_VALUE;
-    
+class pgs43163 {
+    boolean[] visited;
+    int n, answer;
+
     public int solution(String begin, String target, String[] words) {
-        boolean[] visited = new boolean[words.length];
-        dfs(0, 0, begin, target, words, visited);
-        return answer == Integer.MAX_VALUE ? 0 : answer;
+        answer = Integer.MAX_VALUE;
+        n = words.length;
+        visited = new boolean[n];
+        dfs(begin, target, words, 0);
+        if (answer == Integer.MAX_VALUE) return 0;
+        return answer;
     }
-    
-    public void dfs(int idx, int count, String begin, String target, 
-             String[] words, boolean[] visited) {
-        if(idx > words.length - 1) {
-            return ;
+
+    public void dfs(String now, String target, String[] words, int cnt) {
+        if (now.equals(target)) {
+            answer = Math.min(answer, cnt);
+            return;
         }
-        if(begin.equals(target)) {
-            answer = Math.min(answer, count);
-        }
-        for(int i = 0; i < words.length; i++) {
-            if(visited[i] || !checkWord(begin, words[i]) || answer <= count) {
-                continue;
+        for (int i = 0; i < n; i++) {
+            if (!visited[i]) {
+                int diff = 0;
+                for (int j = 0; j < now.length(); j++) {
+                    if (now.charAt(j) != words[i].charAt(j)) diff++;
+                }
+                if (diff == 1) {
+                    visited[i] = true;
+                    dfs(words[i], target, words, cnt + 1);
+                    visited[i] = false;
+                }
             }
-            visited[i] = true;
-            dfs(i, count+1, words[i], target, words, visited);
-            visited[i] = false;
-        }   
-    }
-    
-    public boolean checkWord(String a, String b) {
-        int diff = 0;
-        for(int i = 0; i < a.length(); i++) {
-            if(a.charAt(i) != b.charAt(i)) diff++;
         }
-        if (diff > 1) return false;
-        return true;
     }
-    
-    
 }
