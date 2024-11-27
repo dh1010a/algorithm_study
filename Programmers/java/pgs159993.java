@@ -8,7 +8,7 @@
 //     public boolean isRange(int x, int y) {
 //         return x >= 0 && x < map.length && y >= 0 && y < map[0].length && map[x][y] > 0 && !visited[x][y];
 //     }
-    
+
 //     public int bfs(int[] start, int[] dest) {
 //         Queue<int[]> queue = new LinkedList<>();
 //         queue.add(start);
@@ -29,7 +29,7 @@
 //         }
 //         return -1;
 //     }
-    
+
 //     public int solution(String[] maps) {
 //         map = new int[maps.length][maps[0].length()];
 //         int answer = -1;
@@ -65,27 +65,27 @@
 //                 answer += tmp;
 //             }
 //         }
-        
-        
+
+
 //         return answer;
 //     }
 // }
 
 import java.util.*;
-class Solution {
+class pgs159993 {
     int r, c;
     int[] dx = {0, 1, 0, -1};
     int[] dy = {1, 0, -1, 0};
-    
+
     public int solution(String[] maps) {
         int d1, d2 = 0;
         r = maps.length;
         c = maps[0].length();
-        
+
         Node start = null;
         Node exit = null;
         Node lv = null;
-        
+
         for (int i = 0; i < r; i++) {
             for (int j = 0; j < c; j++) {
                 char tmp = maps[i].charAt(j);
@@ -94,7 +94,7 @@ class Solution {
                         start = new Node(i, j, 0);
                         break;
                     case 'L':
-                        lv = new Node(i, j, 0); 
+                        lv = new Node(i, j, 0);
                         break;
                     case 'E':
                         exit = new Node(i, j, 0);
@@ -104,11 +104,11 @@ class Solution {
         }
         d1 = bfs(maps, start, lv);
         d2 = bfs(maps, lv, exit);
-        
-        
+
+
         return d1 > 0 && d2 > 0 ? d1 + d2 : -1;
     }
-    
+
     public int bfs(String[] maps, Node start, Node dest) {
         Deque<Node> deque = new ArrayDeque<>();
         deque.addFirst(start);
@@ -129,16 +129,16 @@ class Solution {
         }
         return -1;
     }
-    
+
     public boolean isRange(int x, int y) {
         return x >= 0 && x < r && y >= 0 && y < c;
     }
-    
+
     class Node{
         int x;
         int y;
         int d;
-        
+
         public Node(int x, int y, int d) {
             this.x = x;
             this.y = y;
