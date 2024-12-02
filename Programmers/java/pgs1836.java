@@ -34,8 +34,8 @@ class pgs1836 {
         while(list.size() != 0){
             List<Node> nodes = cardLocationInfoMap.get(list.get(idx));
             if(canRemove(nodes.get(0), nodes.get(1), list.get(idx))) {
-                char popped = list.remove(idx);
-                answer += popped;
+                char removed = list.remove(idx);
+                answer += removed;
                 board[nodes.get(0).x][nodes.get(0).y] = '.';
                 board[nodes.get(1).x][nodes.get(1).y] = '.';
                 idx = 0;
