@@ -1,5 +1,5 @@
 import java.util.*;
-class Solution {
+class pgs42583 {
     public int solution(int bridge_length, int weight, int[] truck_weights) {
 
         Queue<Integer> bridge = new LinkedList<>();
