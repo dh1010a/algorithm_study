@@ -1,42 +1,31 @@
-class Solution {
-    int[][] word;
-    int answer;
+class pgs12952 {
+
+    static int answer = 0;
+    static int[] vy = new int[13]; // 1~12
 
     public int solution(int n) {
-        answer = 0;
-        word = new int[n][n];
-        dfs(word, n, 0);
+        for(int i=1;i<=n;i++){
+            go(1, i, n);
+        }
         return answer;
     }
-    
-    public boolean isPossible(int[][] word, int n, int x, int y) {
-        for (int i = 0; i < x; i++) {
-            for (int j = 0; j < n; j++) {
-                if (word[i][j] == 1) {
-                    if (j == y || isDiagonal(x, y, i, j)) {
-                        return false;
-                    }
-                }
-            } 
+
+    public void go(int x, int y, int n){
+        for(int i=1;i<x;i++){
+            if(y == vy[i]) return;
+            if(Math.abs(x - i) == Math.abs(y - vy[i])) return;
         }
-        return true;
-    }
-    
-    public boolean isDiagonal(int x, int y, int x1, int y1) {
-        return Math.abs(x1 -x) == Math.abs(y1 -y);
-    }
-    
-    public void dfs(int[][] word, int n, int depth) {
-        if (depth == n) {
+
+        // 종료 조건
+        if(x == n){
             answer++;
             return;
         }
-        for (int i = 0; i < n; i++) {
-            if (isPossible(word, n, depth, i)) {
-                word[depth][i] = 1;
-                dfs(word, n, depth+1);
-                word[depth][i] = 0;
-            }
-        } 
+
+        vy[x] = y; // x행의 y값 저장
+
+        for(int i=1;i<=n;i++){
+            go(x+1, i, n);
+        }
     }
 }
