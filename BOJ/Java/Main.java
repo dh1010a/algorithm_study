@@ -3,32 +3,42 @@ import java.io.*;
 
 class Main {
 
-    public static void main(String args[]) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+	private static String str1, str2;
+	private static int[][] dp;
+	private static boolean[][] visited;
+	private static StringBuilder answer;
 
-		int N = Integer.parseInt(br.readLine());
+	public static void main(String args[]) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-		StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-		int[] card = new int[N + 1];
+		str1 = br.readLine();
+		str2 = br.readLine();
+		answer = new StringBuilder();
 
-		for (int i = 1; i <= N; i++) {
-			card[i] = Integer.parseInt(st.nextToken());
+		dp = new int[str1.length()][str2.length()];
+		visited = new boolean[str1.length()][str2.length()];
+
+		System.out.println(LCS(str1.length() - 1, str2.length() - 1));
+		System.out.println(answer);
+	}
+
+	private static int LCS(int x, int y) {
+		if (x == -1 || y == -1) {
+			return 0;
 		}
 
-		int[] dp = new int[N + 1];
-		dp[1] = card[1];
-		for (int i = 2; i <= N; i++) {
-			int mid = i / 2;
-			if (i % 2 != 0) {
-				mid++;
-			}
-			for (int j = mid; j <= i; j++) {
-				dp[i] = Math.max(Math.max(dp[j] + dp[i - j], card[i]), dp[i]);
+		if (!visited[x][y]) {
+			if (str1.charAt(x) != str2.charAt(y)) {
+				dp[x][y] = Math.max(LCS(x - 1, y), LCS(x, y - 1));
+			} else {
+				answer.insert(0, str1.charAt(x));
+				System.out.println("str1.charAt(x) = " + str1.charAt(x));
+				dp[x][y] = LCS(x-1, y-1) + 1;
 			}
 		}
-		System.out.println(dp[N]);
-
-    }
+		visited[x][y] = true;
+		return dp[x][y];
+	}
 
 
 }
