@@ -3,41 +3,39 @@ import java.io.*;
 
 class Main {
 
-	private static String str1, str2;
-	private static int[][] dp;
-	private static boolean[][] visited;
-	private static StringBuilder answer;
-
 	public static void main(String args[]) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		int n = Integer.parseInt(br.readLine());
+		int[][] map = new int[n][n];
+		long[][][] dp = new long[n][n][3];
 
-		str1 = br.readLine();
-		str2 = br.readLine();
-		answer = new StringBuilder();
-
-		dp = new int[str1.length()][str2.length()];
-		visited = new boolean[str1.length()][str2.length()];
-
-		System.out.println(LCS(str1.length() - 1, str2.length() - 1));
-		System.out.println(answer);
-	}
-
-	private static int LCS(int x, int y) {
-		if (x == -1 || y == -1) {
-			return 0;
-		}
-
-		if (!visited[x][y]) {
-			if (str1.charAt(x) != str2.charAt(y)) {
-				dp[x][y] = Math.max(LCS(x - 1, y), LCS(x, y - 1));
-			} else {
-				answer.insert(0, str1.charAt(x));
-				System.out.println("str1.charAt(x) = " + str1.charAt(x));
-				dp[x][y] = LCS(x-1, y-1) + 1;
+		for (int i = 0; i < n; i++) {
+			StringTokenizer st = new StringTokenizer(br.readLine());
+			for (int j = 0; j < n; j++) {
+				map[i][j] = Integer.parseInt(st.nextToken());
 			}
 		}
-		visited[x][y] = true;
-		return dp[x][y];
+
+		dp[0][1][0] = 1;
+		for (int i = 0; i < n; i++) {
+			for (int j = 2; j < n; j++) {
+				// 가로
+				if (j - 1 >= 0 && map[i][j] == 0) {
+					dp[i][j][0] = dp[i][j-1][0] + dp[i][j-1][2];
+				}
+				// 세로
+				if (i - 1 >= 0 && map[i][j] == 0) {
+					dp[i][j][1] = dp[i-1][j][1] + dp[i-1][j][2];
+				}
+				// 대각
+				if (i - 1 >= 0 && j -1 >= 0 && map[i][j-1] == 0 && map[i-1][j] == 0 && map[i-1][j-1] == 0) {
+					dp[i][j][2] = dp[i-1][j-1][0] + dp[i-1][j-1][1] + dp[i-1][j-1][2];
+				}
+			}
+		}
+		long answer = dp[n-1][n-1][0] + dp[n-1][n-1][1] + dp[n-1][n-1][2];
+		System.out.println(answer);
+
 	}
 
 
