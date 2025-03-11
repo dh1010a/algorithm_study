@@ -1,6 +1,6 @@
 import java.util.*;
 
-class Solution {
+class pgs81303 {
     
     private Node[] nodeArr;
     
