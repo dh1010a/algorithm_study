@@ -35,6 +35,7 @@ public class pgs258711 {
 		}
 
 		for (int node : startPoint) {
+			// 들어오는 간선의 갯수에서, 시작 정점에서 들어오는 간선의 수를 빼준다.
 			inbound_cnt.put(node, inbound_cnt.get(node) - 1);
 			if (!visited[node]) {
 				answer[checkGraph(node)]++;
