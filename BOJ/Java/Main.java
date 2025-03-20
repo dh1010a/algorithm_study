@@ -1,93 +1,150 @@
 import java.util.*;
 import java.io.*;
 
-class Main {
+public class Main {
 
-	static int[][] map;
-	static int[] shark;
 	static int N;
+	static int[][] arr;
+	static int[] dx = {0, 1, 1, 1, 0, -1, -1, -1};
+	static int[] dy = {-1, -1, 0, 1, 1, 1, 0, -1};
+	static int answer = 0;
+	static int x, y, d = 0;
+	static int length = 0;
+	static int remain;
 
-	static int[] dx = {1, 0, -1, 0};
-	static int[] dy = {0, -1, 0, 1};
-
-	static int minX, minY, minDist;
-
-
-
-	public static void main(String args[]) throws Exception {
+	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
 		N = Integer.parseInt(br.readLine());
-		map = new int[N][N];
+		arr = new int[N][N];
 
-		int answer = 0;
-
-		// 맵과 물고기, 상어의 위치 저장
 		for (int i = 0; i < N; i++) {
-			StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-			for (int j = 0; j < N; j++) {
-				map[i][j] = Integer.parseInt(st.nextToken());
-				if (map[i][j] == 9) {
-					shark = new int[]{i, j, 2, 0}; // x, y, size, 먹은 마리 수
-					map[i][j] = 0;
-				}
-			}
+			StringTokenizer st = new StringTokenizer(br.readLine());
+			for (int j = 0; j < N; j++)
+				arr[i][j] = Integer.parseInt(st.nextToken());
 		}
 
-		while (true) {
-			PriorityQueue<int[]> pq = new PriorityQueue<>((o1, o2) -> {
-				if (o1[2] == o2[2]) {
-					if (o1[0] == o2[0]) {
-						return o1[1] - o2[1];
-					} else {
-						return o1[0] - o2[0];
-					}
-				} else {
-					return o1[2] - o2[2];
-				}
-			});
-			pq.add(new int[]{shark[0], shark[1], 0});
-			boolean isEat = false;
-			boolean[][] visited = new boolean[N][N];
+		x = N / 2; y = N / 2;
+		while (!(x == 0 && y == 0)) {
+			if (d % 4 == 0) {
+				length++;
+			}
 
-			while (!pq.isEmpty()) {
-				int[] now = pq.poll();
-
-				if (map[now[0]][now[1]] != 0 && map[now[0]][now[1]] < shark[2]) {
-					isEat = true;
-					shark[0] = now[0];
-					shark[1] = now[1];
-					shark[3]++;
-
-					map[now[0]][now[1]] = 0;
-					if (shark[2] == shark[3]) {
-						shark[2]++;
-						shark[3] = 0;
-					}
-					answer += now[2];
+			for (int i = 0; i < length; i++) {
+				//새로 갱신된 것이 y 노드
+				x += dx[d];
+				y += dy[d];
+				if (x == 0 && y == 0) {
 					break;
 				}
 
-				for (int i = 0; i < 4; i++) {
-					int nx = now[0] + dx[i];
-					int ny = now[1] + dy[i];
-					if (isRange(nx, ny) && !visited[nx][ny] && map[nx][ny] <= shark[2]) {
-						pq.add(new int[]{nx, ny, now[2] + 1});
-						visited[nx][ny] = true;
-					}
+				int sand = arr[x][y];
+				remain = sand;
+				arr[x][y] = 0;
+
+				// 모래가 없다면 continue
+				if (sand == 0) continue;
+
+				//1. y의 위아래로 각각 7%, 2%
+				moveUpDown(sand, 2);
+				moveUpDown(sand, 6);
+
+				//2. y의 왼쪽 대각산은 각각 10%, y의 오른쪽 대각선은 각각 1%, y의 왼쪽으로 두칸은 5%, y의 왼쪽 1칸은 남은 모래의 양
+				leftCross(sand, 1);
+				leftCross(sand, 7);
+				rightCross(sand, 3);
+				rightCross(sand, 5);
+
+
+				//3. 왼쪽으로 두칸 5%
+				left(sand);
+
+				//4. 나머지
+				int alphaX = x + dx[d];
+				int alphaY = y + dy[d];
+				if (isOutOfBound(alphaX, alphaY)) {
+					answer += remain;
+				} else {
+					arr[alphaX][alphaY] += remain;
+				}
+
+				System.out.println("---남아 있는 모래 근황---");
+				for(int k = 0; k < N; k++){
+					System.out.println(Arrays.toString(arr[k]));
 				}
 			}
-			if (!isEat) {
-				break;
-			}
+
+			//토네이도 방향 전환
+			d = (d + 2) % 8;
 		}
 
 		System.out.println(answer);
 	}
 
+	private static void moveUpDown(int sand, int k) {
+		int spread1 = sand * 7 / 100;
+		int spread2 = sand * 2 / 100;
+		remain -= spread2;
+		remain -= spread1;
 
-	private static boolean isRange(int x, int y) {
-		return x >= 0 && x < N && y >= 0 && y < N;
+		int nextX = x + dx[(d + k) % 8];
+		int nextY = y + dy[(d + k) % 8];
+		if (isOutOfBound(nextX, nextY)) {
+			answer += spread1;
+		} else {
+			arr[nextX][nextY] += spread1;
+		}
+
+		nextX += dx[(d + k) % 8];
+		nextY += dy[(d + k) % 8];
+		if (isOutOfBound(nextX, nextY)) {
+			answer += spread2;
+		} else {
+			arr[nextX][nextY] += spread2;
+		}
 	}
 
+	private static void leftCross(int sand, int k) {
+		int spread = sand * 10 / 100;
+		remain -= spread;
+
+
+		int leftCrossX = x + dx[(d + k) % 8];
+		int leftCrossY = y + dy[(d + k) % 8];
+		if (isOutOfBound(leftCrossX, leftCrossY)) {
+			answer += spread;
+		} else {
+			arr[leftCrossX][leftCrossY] += spread;
+		}
+	}
+
+	private static void rightCross(int sand, int k) {
+		int spread = sand / 100;
+		remain -= spread;
+
+		int rightCrossX = x + dx[(d + k) % 8];
+		int rightCrossY = y + dy[(d + k) % 8];
+		if (isOutOfBound(rightCrossX, rightCrossY)) {
+			answer += spread;
+		} else {
+			arr[rightCrossX][rightCrossY] += spread;
+		}
+	}
+
+	private static void left(int sand) {
+		int spread = sand * 5 / 100;
+		remain -= spread;
+
+		int leftX = x + dx[d] * 2;
+		int leftY = y + dy[d] * 2;
+		if (isOutOfBound(leftX, leftY)) {
+			answer += spread;
+		} else {
+			arr[leftX][leftY] += spread;
+		}
+	}
+
+
+	private static boolean isOutOfBound(int x, int y) {
+		return x < 0 || y < 0 || x >= N || y >= N;
+	}
 }
