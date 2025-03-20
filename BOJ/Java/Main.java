@@ -33,16 +33,18 @@ public class Main {
 				//새로 갱신된 것이 y 노드
 				x += dx[d];
 				y += dy[d];
-				if (x == 0 && y == 0) {
-					break;
-				}
 
 				int sand = arr[x][y];
 				remain = sand;
 				arr[x][y] = 0;
 
 				// 모래가 없다면 continue
-				if (sand == 0) continue;
+				if (sand == 0) {
+					if (x == 0 && y == 0) {
+						break;
+					}
+					continue;
+				}
 
 				//1. y의 위아래로 각각 7%, 2%
 				moveUpDown(sand, 2);
@@ -67,16 +69,14 @@ public class Main {
 					arr[alphaX][alphaY] += remain;
 				}
 
-				System.out.println("---남아 있는 모래 근황---");
-				for(int k = 0; k < N; k++){
-					System.out.println(Arrays.toString(arr[k]));
+				if (x == 0 && y == 0) {
+					break;
 				}
 			}
 
 			//토네이도 방향 전환
 			d = (d + 2) % 8;
 		}
-
 		System.out.println(answer);
 	}
 
