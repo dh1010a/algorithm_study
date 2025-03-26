@@ -7,62 +7,35 @@ public class Main {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine(), " ");
 
+		int[] visited = new int[100001];
+		int cnt = 0;
+
 		int N = Integer.parseInt(st.nextToken());
 		int K = Integer.parseInt(st.nextToken());
 
-		List<Integer> belt = new ArrayList<>();
-		List<Integer> robot = new ArrayList<>();
-		st = new StringTokenizer(br.readLine(), " ");
+		Arrays.fill(visited, 100001);
+		visited[N] = 0;
 
-		for (int i = 0; i < N * 2; i++) {
-			belt.add(Integer.parseInt(st.nextToken()));
-			robot.add(0);
-		}
+		Deque<Integer> dq = new ArrayDeque<>();
+		dq.add(N);
 
+		while (!dq.isEmpty()) {
+			int now = dq.poll();
 
-		int zeroCnt = 0;
-		int answer = 0;
-		while (zeroCnt < K) {
-
-			belt.add(0, belt.remove(belt.size() - 1));
-			robot.add(0, robot.remove(robot.size() - 1));
-
-			if (robot.get(N - 1) != 0) {
-				robot.set(N - 1, 0);
+			if (now == K) {
+				cnt++;
+				continue;
 			}
 
-			for (int i = N * 2 - 1; i >= 0; i--) {
-				if (robot.get(i) == 1) {
-					if (i == N * 2 - 1) {
-						robot.set(i, 0);
-					} else {
-						if (belt.get(i + 1) != 0 && robot.get(i + 1) == 0) {
-							belt.set(i + 1, belt.get(i + 1) - 1);
-							robot.set(i, 0);
-							robot.set(i + 1, 1);
-							if (belt.get(i + 1) == 0) {
-								zeroCnt++;
-							}
-						}
-					}
+			int[] tmp = new int[]{now - 1, now + 1, now * 2};
+			for (int x : tmp) {
+				if (x < visited.length && x >= 0 && visited[x] >= visited[now] + 1) {
+					visited[x] = visited[now] + 1;
+					dq.add(x);
 				}
 			}
-			if (robot.get(N - 1) != 0) {
-				robot.set(N - 1, 0);
-			}
-
-			if (robot.get(0) != 1 && belt.get(0) != 0) {
-				belt.set(0, belt.get(0) - 1);
-				robot.set(0, 1);
-				if (belt.get(0) == 0) {
-					zeroCnt++;
-				}
-			}
-
-			answer++;
-
 		}
-
-		System.out.println(answer);
+		System.out.println(visited[K]);
+		System.out.println(cnt);
 	}
 }
