@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 
-public class Main {
+public class boj2638 {
 	static int N, M, answer;
 	static int[][] world;
     static int[] dx = {1, 0, -1, 0};
