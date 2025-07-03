@@ -3,39 +3,44 @@ import java.io.*;
 
 public class Main {
 
+	static int n, m;
+	static int[][] dp;
+
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+		int answer = 0;
 
-		int[] visited = new int[100001];
-		int cnt = 0;
 
-		int N = Integer.parseInt(st.nextToken());
-		int K = Integer.parseInt(st.nextToken());
+		n = Integer.parseInt(st.nextToken());
+		m = Integer.parseInt(st.nextToken());
 
-		Arrays.fill(visited, 100001);
-		visited[N] = 0;
+		String now = br.readLine();
+		String target = br.readLine();
 
-		Deque<Integer> dq = new ArrayDeque<>();
-		dq.add(N);
+		dp = new int[m + 1][n + 1];
 
-		while (!dq.isEmpty()) {
-			int now = dq.poll();
+		for (int i = 1; i <= m; i++) {
+			dp[i][0] = i;
+		}
 
-			if (now == K) {
-				cnt++;
-				continue;
-			}
+		for (int i = 1; i <= n; i++) {
+			dp[0][i] = i;
+		}
 
-			int[] tmp = new int[]{now - 1, now + 1, now * 2};
-			for (int x : tmp) {
-				if (x < visited.length && x >= 0 && visited[x] >= visited[now] + 1) {
-					visited[x] = visited[now] + 1;
-					dq.add(x);
+		for (int i = 1; i <= m; i++) {
+			for (int j = 1; j <= n; j++) {
+				dp[i][j] = Math.min(dp[i-1][j-1], Math.min(dp[i-1][j], dp[i][j- 1])) + 1;
+				if (target.charAt(i-1) == now.charAt(j-1) ||
+						(now.charAt(j - 1) == 'v' && target.charAt(i-1) == 'w') ||
+						(now.charAt(j - 1) == 'i' && target.charAt(i-1) == 'j') ||
+						(now.charAt(j - 1) == 'i' && target.charAt(i-1) == 'l')
+				) {
+					dp[i][j] = dp[i-1][j-1];
 				}
 			}
 		}
-		System.out.println(visited[K]);
-		System.out.println(cnt);
+		System.out.println(dp[m][n]);
 	}
+
 }
