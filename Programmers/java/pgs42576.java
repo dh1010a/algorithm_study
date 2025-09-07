@@ -1,6 +1,6 @@
 import java.util.*;
 
-class Solution {
+class pgs42576 {
 	public String solution(String[] participant, String[] completion) {
 		Map<String, Integer> counter = new HashMap<>();
 
