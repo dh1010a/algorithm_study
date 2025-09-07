@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/BOJ/BOJ.iml" filepath="$PROJECT_DIR$/BOJ/BOJ.iml" />
       <module fileurl="file://$PROJECT_DIR$/Codility/Codility.iml" filepath="$PROJECT_DIR$/Codility/Codility.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Leetcode/Leetcode.iml" filepath="$PROJECT_DIR$/Leetcode/Leetcode.iml" />
       <module fileurl="file://$PROJECT_DIR$/Programmers/Programmers.iml" filepath="$PROJECT_DIR$/Programmers/Programmers.iml" />
       <module fileurl="file://$PROJECT_DIR$/algorithm_study.iml" filepath="$PROJECT_DIR$/algorithm_study.iml" />
     </modules>

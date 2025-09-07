@@ -1,63 +1,51 @@
+import java.util.*;
+
 class Solution {
+	public int trap(int[] height) {
+		Deque<Node> dq = new ArrayDeque<>();
+		int[] trap = height.clone();
+		int answer = 0;
 
-    double h_d;
-    double m_d;
-    double s_d;
+		Node now = new Node(0, 0);
 
-    public int solution(int h1, int m1, int s1, int h2, int m2, int s2) {
-        int answer = 0;
+		for (int i = 0; i < height.length; i++) {
+			int h = height[i];
 
-        int start = 3600 * h1 + 60 * m1 + s1;
-        int end = 3600 * h2 + 60 * m2 + s2;
-        calculateDegree(h1, m1, s1);
-        if(Double.compare(h_d, m_d) == 0 || Double.compare(m_d,s_d) == 0) answer++;
+			while (!dq.isEmpty() && h >= dq.peekLast().h) {
+				now = dq.removeLast();
+			}
 
-        while (start < end) {
-            start++;
-            answer += getAlarmCount();
-        }
+			Node left;
 
-        calculateDegree(h2,m2,s2);
-        if(Double.compare(h_d, m_d) == 0 || Double.compare(m_d,s_d) == 0) answer++;
+			if (dq.isEmpty()) {
+				left = now;
+				for (int j = left.idx + 1; j < i; j++) {
+					trap[j] = left.h;
+				}
+			} else {
+				left = dq.peekLast();
+				for (int j = left.idx + 1; j < i; j++) {
+					trap[j] = h;
+				}
 
+			}
 
-        return answer;
-    }
+			dq.add(new Node(height[i], i));
+		}
 
-    public void calculateDegree(int h1, int m1, int s1) {
-        h_d = (h1 % 12) * 30 + m1 * 0.5 + s1 * (0.5 / 60.0);
-        m_d = m1 * 6 + s1 * 0.1;
-        s_d = s1 * 6;
-    }
+		for (int i = 0; i < height.length; i++) {
+			answer += trap[i] - height[i];
+		}
+		return answer;
+	}
 
-    public int getAlarmCount() {
-        int answer = 0;
+	class Node {
+		int h;
+		int idx;
 
-        double prev_h_d = h_d;
-        double prev_m_d = m_d;
-        double prev_s_d = s_d;
-
-        h_d += 30.0 / 3600.0;
-        m_d += 6.0 / 60.0;
-        s_d += 1;
-
-        if (Double.compare(prev_h_d, prev_s_d) > 0 &&  Double.compare(h_d, s_d) <= 0) {
-            answer++;
-        }
-        if (Double.compare(prev_m_d, prev_s_d) > 0 && Double.compare(m_d, s_d) <= 0) {
-            answer++;
-        }
-
-        if (Double.compare(prev_h_d , prev_m_d) > 0 && Double.compare(prev_h_d , prev_s_d) > 0 &&
-                Double.compare(h_d , m_d) <= 0 && Double.compare(h_d , s_d) <= 0){
-            answer--;
-        }
-
-        h_d %= 360.0;
-        m_d %= 360.0;
-        s_d %= 360.0;
-
-        return answer;
-
-    }
+		public Node(int h, int idx) {
+			this.h = h;
+			this.idx = idx;
+		}
+	}
 }
