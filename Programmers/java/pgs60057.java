@@ -1,32 +1,46 @@
 import java.util.*;
+
 class pgs60057 {
     public int solution(String s) {
-        List<Integer> answer = new ArrayList<>();
-        for (int i = 1; i <= s.length(); i++) {
-            Queue<String> q = new LinkedList<>();
-            int j = 0;
-            while (j + i <= s.length()) {
-                q.add(s.substring(j, j + i));
-                j += i;
-            }
-            if (!s.substring(j, s.length()).equals("")) {
-                q.add(s.substring(j, s.length()));
-            }
-            String x = "";
-            while (!q.isEmpty()) {
-                
-                String now = q.poll();
-                int n = 1;
-                while (!q.isEmpty() && q.peek().equals(now)) {
-                    q.poll();
-                    n++;
-                }
-                
-                x = n!=1 ? x + n + now : x + now;
-                
-            }
-            answer.add(x.length());
+        int answer = 1000;
+        if (s.length() == 1) {
+            return 1;
         }
-        return Collections.min(answer);
+
+        for (int i = 1; i < s.length() / 2 + 1; i++) {
+            Deque<String> dq = new ArrayDeque<>();
+            int idx = 0;
+            while(idx + i < s.length()) {
+                dq.add(s.substring(idx, idx + i));
+                idx += i;
+            }
+            // 뒷부분 남은 경우
+            if (!s.substring(idx, s.length()).equals("")) {
+                dq.add(s.substring(idx, s.length()));
+            }
+
+            int len = 0;
+            while (!dq.isEmpty()) {
+                String now = dq.remove();
+                int cnt = 1;
+                while(!dq.isEmpty() && dq.peek().equals(now)) {
+                    dq.remove();
+                    cnt++;
+                }
+                len += (cnt == 1 ? 0 : getLength(cnt)) + now.length();
+            }
+
+            answer = Math.min(len, answer);
+        }
+
+        return answer;
+    }
+
+    public int getLength(int size) {
+        if (size < 10) {
+            return 1;
+        } else {
+            return getLength(size / 10) + 1;
+        }
     }
 }
