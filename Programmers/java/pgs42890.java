@@ -1,51 +1,67 @@
 import java.util.*;
 
 class pgs42890 {
-    List<List<Integer>> answers;
+
+    List<Integer> selectedKey;
+    List<List<Integer>> candidate;
 
     public int solution(String[][] relation) {
-        answers = new ArrayList<>();
-        for (int i = 1; i <= relation[0].length; i++) {
-            dfs(relation, new ArrayList<>(), 0, i);
+        selectedKey = new ArrayList<>();
+        candidate = new ArrayList<>();
+        for (int i = 1; i < relation.length; i++) {
+            makeComb(relation, 0, i);
         }
-        return answers.size();
+
+        return candidate.size();
     }
 
-    public void dfs(String[][] relation, List<Integer> list, int now, int n) {
-        if (list.size() == n) {
-            // 유일성 검사
-            Set<String> set = new HashSet<>();
-            for(int i = 0; i < relation.length; i++) {
-                String tmp = "";
-                for (int x: list) {
-                    tmp += relation[i][x];
-                }
-                set.add(tmp);
-            }
-            if (set.size() == relation.length) {
-                // 최소성 검사
-                boolean flag = true;
-                for (List<Integer> answer : answers) {
-                    int cnt = 0;
-                    for (int x: list) {
-                        if (answer.contains(x)) cnt++;
-                    }
-                    if (cnt == answer.size()) {
-                        flag = false;
-                    }
-                }
-                if (flag) {
-                    answers.add(new ArrayList<>(list));
-                }
+    public void makeComb(String[][] relation, int start, int n) {
+        if (selectedKey.size() == n) {
+            if(checkUniq(relation) && checkMin(relation)) {
+                List<Integer> answer = new ArrayList<>();
+                answer.addAll(selectedKey);
+                candidate.add(answer);
             }
             return;
         }
 
-        for (int i = now; i < relation[0].length; i++) {
-            list.add(i);
-            dfs(relation, list, i + 1, n);
-            list.remove(list.size() - 1);
+        for (int i = start; i < relation[0].length; i++) {
+            selectedKey.add(i);
+            makeComb(relation, i + 1, n);
+            selectedKey.remove(selectedKey.size() - 1);
+        }
+    }
+
+    public boolean checkUniq(String[][] relation) {
+        Set<String> set = new HashSet<>();
+        for (int i = 0; i < relation.length; i++) {
+            String tmp = "";
+            for (int x : selectedKey) {
+                tmp += relation[i][x];
+            }
+            set.add(tmp);
+        }
+        if (set.size() != relation.length) {
+            return false;
         }
 
+        return true;
     }
+
+    public boolean checkMin(String[][] relation) {
+        for (List<Integer> x : candidate) {
+            int cnt = 0;
+            for (int i : selectedKey) {
+                if (x.contains(i)) {
+                    cnt++;
+                }
+            }
+            if (cnt == x.size()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
 }
