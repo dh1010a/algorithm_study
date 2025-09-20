@@ -1,6 +1,6 @@
 import java.util.*;
 
-class TrappingRainWater {
+class leet42 {
 	public int trap(int[] height) {
 		Deque<Node> dq = new ArrayDeque<>();
 		int[] trap = height.clone();
