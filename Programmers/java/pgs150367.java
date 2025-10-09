@@ -2,58 +2,68 @@ import java.util.*;
 
 class pgs150367 {
     public int[] solution(long[] numbers) {
-        int[] answer = new int[numbers.length];
+        List<Integer> answer = new ArrayList<>();
 
-        for (int i = 0; i < numbers.length; i++) {
-            answer[i] = isBinaryTree(getFullBinary(numbers[i])) == true ? 1 : 0;
+        for (long number : numbers) {
+            String result = changeBinary(number);
+
+            if (isBinaryTree(result)) {
+                answer.add(1);
+            } else {
+                answer.add(0);
+            }
+
         }
 
-        return answer;
+        return answer.stream().mapToInt(Integer::intValue).toArray();
     }
 
-    public boolean isBinaryTree(String binary) {
-        int len = binary.length();
-        if (binary.length() == 0) return true;
+    public boolean isBinaryTree(String result) {
+        int root = result.length() / 2;
 
-        int root = len / 2;
-        String leftSubTree = binary.substring(0, root);
-        String rightSubTree = binary.substring(root + 1);
-
-        if (binary.charAt(root) == '0') {
-            return isZeroTree(leftSubTree) && isZeroTree(rightSubTree);
+        if (result.length() == 0) {
+            return true;
         }
 
-        return isBinaryTree(leftSubTree) && isBinaryTree(rightSubTree);
+        String left = result.substring(0, root);
+        String right = result.substring(root + 1);
+
+        if (result.charAt(root) == '0') {
+            return isZeroTree(left) && isZeroTree(right);
+        }
+
+        return isBinaryTree(left) && isBinaryTree(right);
     }
 
-    public String getFullBinary(Long number) {
-        String binary = Long.toBinaryString(number);
-        int length = binary.length();
-        int lv = 1;
-        int nodeCnt = 1;
-        while (length > nodeCnt) {
-            lv *= 2;
-            nodeCnt += lv;
+    public boolean isZeroTree(String result) {
+        int root = result.length() / 2;
+
+        if (result.length() == 0) {
+            return true;
         }
 
-        for (int i = 0; i < nodeCnt - length; i++) {
-            binary = "0" + binary;
-        }
-        return binary;
-    }
-
-    private boolean isZeroTree(String binary) {
-        int len = binary.length();
-        if (binary.length() == 0) return true;
-
-        int root = len / 2;
-        String leftSubTree = binary.substring(0, root);
-        String rightSubTree = binary.substring(root + 1);
-
-        if (binary.charAt(root) == '1') {
+        if (result.charAt(root) == '1') {
             return false;
         }
 
-        return isZeroTree(leftSubTree) && isZeroTree(rightSubTree);
+        String left = result.substring(0, root);
+        String right = result.substring(root + 1);
+
+        return isZeroTree(left) && isZeroTree(right);
     }
+
+
+    public String changeBinary(long num) {
+        String result = Long.toBinaryString(num);
+
+        int level = 1;
+        int nodeCnt = 1;
+        while (result.length() > nodeCnt) {
+            level *= 2;
+            nodeCnt += level;
+        }
+
+        return "0".repeat(nodeCnt - result.length()) + result;
+    }
+
 }
