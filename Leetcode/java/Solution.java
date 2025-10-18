@@ -1,58 +1,70 @@
-import java.util.Arrays;
+import java.util.*;
 
 class Solution {
+	public int[] solution(int[] fees, String[] records) {
+		List<Integer> answer = new ArrayList<>();
 
-	static int INF = 30001;
-
-	public int solution(int alp, int cop, int[][] problems) {
-		int maxAlp = 0;
-		int maxCop = 0;
-
-		for (int[] prb : problems) {
-			maxAlp = Math.max(maxAlp, prb[0]);
-			maxCop = Math.max(maxCop, prb[1]);
-		}
-
-		if (alp >= maxAlp && cop >= maxCop) {
-			return 0;
-		}
-
-		maxAlp = Math.max(maxAlp, alp);
-		maxCop = Math.max(maxCop, cop);
-
-
-		int[][] dp = new int[maxAlp + 1][maxCop + 1];
-
-		for (int[] x : dp) {
-			Arrays.fill(x, INF);
-		}
-
-		dp[alp][cop] = 0;
-
-		for (int i = alp; i <= maxAlp; i++) {
-			for (int j = cop; j <= maxCop; j++) {
-				int now = dp[i][j];
-
-				if (i + 1 <= maxAlp) {
-					dp[i + 1][j] = Math.min(dp[i + 1][j], now + 1);
+		Map<String, List<History>> map = new HashMap<>();
+		for (String x: records) {
+			String[] str = x.split(" ");
+			if (!map.containsKey(str[1])) {
+				map.put(str[1], new ArrayList<>());
+				map.get(str[1]).add(new History(str[0], ""));
+			} else {
+				if (str[2].equals("IN")) {
+					map.get(str[1]).add(new History(str[0], ""));
+				} else {
+					map.get(str[1]).get(map.get(str[1]).size() - 1).out = str[0];
 				}
-
-				if (j + 1 <= maxCop) {
-					dp[i][j + 1] = Math.min(dp[i][j + 1], now + 1);
-				}
-
-				for (int[] prb : problems) {
-					if (prb[0] <= i && prb[1] <= j) {
-						int na = Math.min(maxAlp, i + prb[2]);
-						int nc = Math.min(maxCop, j + prb[3]);
-
-						dp[na][nc] = Math.min(dp[na][nc], now + prb[4]);
-					}
-				}
-
 			}
 		}
 
-		return dp[maxAlp][maxCop];
+		Map<String, Integer> feeMap = new TreeMap<>();
+
+		for (Map.Entry<String, List<History>> x : map.entrySet()) {
+			List<History> list = x.getValue();
+			int time = 0;
+
+			for (History h : list) {
+				time += calTime(h.in, h.out);
+			}
+			feeMap.putIfAbsent(x.getKey(), 0);
+			feeMap.put(x.getKey(), feeMap.get(x.getKey()) + time);
+		}
+
+		for (Map.Entry<String, Integer> x : feeMap.entrySet()) {
+			int time = x.getValue();
+
+			if (time <= fees[0]) {
+				answer.add(fees[1]);
+			} else {
+				int spare = time - fees[0];
+				double result = (double) spare / fees[2];
+				answer.add(fees[1] + ((int) Math.ceil(result) * fees[3]));
+			}
+		}
+
+		return answer.stream().mapToInt(i -> i).toArray();
+	}
+
+	public int calTime(String start, String end) {
+		int startTime = Integer.parseInt(start.substring(0, 2)) * 60 + Integer.parseInt(start.substring(3, 5));
+		int endTime = 0;
+		if (end == null || end.isEmpty()) {
+			endTime = 24 * 60 - 1;
+		} else {
+			endTime = Integer.parseInt(end.substring(0, 2)) * 60 + Integer.parseInt(end.substring(3, 5));
+		}
+		return endTime - startTime;
+	}
+
+	class History {
+		String in;
+		String out;
+
+		public History(String in, String out) {
+			this.in = in;
+			this.out = out;
+		}
 	}
 }
